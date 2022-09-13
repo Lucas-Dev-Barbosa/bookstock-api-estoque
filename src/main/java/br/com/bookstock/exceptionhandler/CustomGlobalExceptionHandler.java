@@ -41,29 +41,29 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 	@ExceptionHandler(SQLIntegrityConstraintViolationException.class)
 	public ResponseEntity<Object> constraintViolationException(SQLIntegrityConstraintViolationException ex)
 			throws IOException {
-		return getResponseEntity("Violação de integridade");
+		return getResponseEntity(HttpStatus.BAD_REQUEST, "Violação de integridade");
 	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
 	public ResponseEntity<Object> entityNotFoundException(EntityNotFoundException ex) throws IOException {
-		return getResponseEntity("Não foi possível encontrar este registro em nossa base");
+		return getResponseEntity(HttpStatus.BAD_REQUEST, "Não foi possível encontrar este registro em nossa base");
 	}
 	
 	@ExceptionHandler(EmptyResultDataAccessException.class)
 	public ResponseEntity<Object> emptyResultDataAccessException(EmptyResultDataAccessException ex) throws IOException {
-		return getResponseEntity("Não foi possível encontrar este registro em nossa base");
+		return getResponseEntity(HttpStatus.BAD_REQUEST, "Não foi possível encontrar este registro em nossa base");
 	}
 
 	@ExceptionHandler(EstoqueException.class)
 	public ResponseEntity<Object> estoqueException(EstoqueException ex) throws IOException {
-		return getResponseEntity(ex.getMessage());
+		return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 	}
 
-	private ResponseEntity<Object> getResponseEntity(String... messages) {
-		Map<String, Object> body = getBody(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
+	private ResponseEntity<Object> getResponseEntity(HttpStatus httpStatus, String... messages) {
+		Map<String, Object> body = getBody(httpStatus.value(), httpStatus.getReasonPhrase(),
 				Arrays.asList(messages));
 
-		return new ResponseEntity<Object>(body, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<Object>(body, httpStatus);
 	}
 
 	private Map<String, Object> getBody(int status, String error, List<String> message) {

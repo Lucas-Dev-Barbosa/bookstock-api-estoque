@@ -9,7 +9,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.bookstock.exception.EstoqueException;
 import br.com.bookstock.model.domain.Estoque;
 import br.com.bookstock.model.domain.Livro;
 import br.com.bookstock.model.domain.repository.EstoqueRepository;
@@ -42,14 +41,22 @@ public class EstoqueService {
 	
 	@Transactional(readOnly = false)
 	public Estoque gerarEstoque(Livro livro) {
-		log.info("Gerando novo estoque com o livro [" + livro.getId() + "]");
+		log.info("Gerando novo estoque com o livro [" + livro.getTitulo() + "]");
 		Estoque estoque = new Estoque(livro);
 		return repository.save(estoque);
 	}
 	
 	@Transactional(readOnly = false)
-	public Estoque editarEstoque(Estoque estoque) throws EstoqueException {
+	public Estoque editarEstoque(Estoque estoque) {
+		Estoque oldEstoque = repository.getReferenceById(estoque.getId());
+		estoque.setLivro(oldEstoque.getLivro());
 		return repository.save(estoque);
+	}
+
+	@Transactional(readOnly = false)
+	public void excluirEstoque(Long id) {
+		log.info("Realizando exclusão do estoque ID [" + id + "]");
+		repository.deleteById(id);
 	}
 
 }

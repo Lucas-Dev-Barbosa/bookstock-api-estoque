@@ -1,5 +1,6 @@
 package br.com.bookstock.model.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -27,7 +28,7 @@ public class Estoque extends AbstractEntity {
 	@Min(value = 0, message = "O valor de vendidos não pode ser negativo.")
 	private Integer vendidos = 0;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_livro")
 	private Livro livro;
 	

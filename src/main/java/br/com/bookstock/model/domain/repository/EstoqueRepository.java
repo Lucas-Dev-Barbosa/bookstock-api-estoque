@@ -17,7 +17,4 @@ public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
 	@Query("FROM Estoque e")
 	Page<Estoque> getEstoquePorPaginacaoSemBusca(Pageable pageable);
 	
-	@Query("FROM Estoque e WHERE e.livro.id = :id")
-	Estoque getEstoquePorLivroId(Long id);
-	
 }

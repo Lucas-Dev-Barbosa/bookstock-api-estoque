@@ -15,7 +15,7 @@ public class BookStockLoader implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		
-		log.info("Iniciando a API Book Stock Manager...");
+		log.info("Iniciando a API de Estoque Book Stock Manager...");
 		
 	}
 
