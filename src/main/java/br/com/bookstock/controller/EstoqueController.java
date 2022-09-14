@@ -1,10 +1,12 @@
 package br.com.bookstock.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.bookstock.model.domain.Estoque;
-import br.com.bookstock.model.domain.Livro;
 import br.com.bookstock.model.domain.service.EstoqueService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -44,10 +45,9 @@ public class EstoqueController {
 	@Tag(name = "listarEstoquePorPaginacao", description = "Retorna uma lista paginada dos registros contidos no estoque")
 	public Page<Estoque> listarEstoquePorPaginacao(
 			@RequestParam(name = "pagina", required = false, defaultValue = "1") Integer pagina,
-			@RequestParam(name = "direcao", required = false, defaultValue = "asc") String direcao,
-			@RequestParam(name = "filtro", required = false) String filtro) {
+			@RequestParam(name = "direcao", required = false, defaultValue = "asc") String direcao) {
 
-		Page<Estoque> listaEstoque = service.buscarEstoquePorPaginacao(pagina, direcao, filtro);
+		Page<Estoque> listaEstoque = service.buscarEstoquePorPaginacao(pagina, direcao);
 
 		return listaEstoque;
 	}
@@ -55,15 +55,22 @@ public class EstoqueController {
 	@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
 	@GetMapping("/{id}")
 	@Tag(name = "obterEstoquePorId", description = "Retorna um registro do estoque pelo seu ID")
-	public Estoque obterEstoquePorId(@PathVariable Long id) {
+	public Estoque obterEstoquePorId(@PathVariable(required = true) Long id) {
 		return service.obterEstoquePorId(id);
 	}
 	
+	@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+	@GetMapping("/livro/{id}")
+	@Tag(name = "obterEstoquePorIdLivro", description = "Retorna um registro do estoque pelo seu ID do livro")
+	public Estoque obterEstoquePorIdLivro(@PathVariable(required = true) Long id) {
+		return service.obterEstoquePorIdLivro(id);
+	}
+	
 	@PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-	@PostMapping
+	@PostMapping("/livro")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@Tag(name = "gerarEstoque", description = "Gera um novo registro na base de estoque a partir de um novo livro cadastrado")
-	public Estoque gerarEstoque(@Valid @RequestBody Livro livro) {
+	public Estoque gerarEstoque(@RequestBody Map<String, Long> livro) {
 		Estoque estoque = service.gerarEstoque(livro);
 		return estoque;
 	}
@@ -79,9 +86,13 @@ public class EstoqueController {
 	@PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
 	@DeleteMapping("/{id}")
 	@ResponseStatus(code = HttpStatus.OK)
-	@Tag(name = "excluirTitulo", description = "Realiza a exclusão de um título no estoque pelo ID do estoque.")
+	@Tag(name = "excluirTitulo", description = "Realiza a exclusão de um título no estoque pelo ID do estoque ou ID do livro.")
 	public void excluirEstoque(@PathVariable Long id) {
-		service.excluirEstoque(id);
+		try {
+			service.excluirEstoquePorId(id);
+		} catch (EmptyResultDataAccessException e) {
+			service.excluirEstoquePorIdLivro(id);
+		}
 	}
 
 }

@@ -1,10 +1,7 @@
 package br.com.bookstock.model.domain;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
@@ -28,12 +25,11 @@ public class Estoque extends AbstractEntity {
 	@Min(value = 0, message = "O valor de vendidos não pode ser negativo.")
 	private Integer vendidos = 0;
 	
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_livro")
-	private Livro livro;
+	@Column(name = "id_livro")
+	private Long idLivro;
 	
-	public Estoque(Livro livro) {
-		this.livro = livro;
+	public Estoque(Long idLivro) {
+		this.idLivro = idLivro;
 	}
 	
 }
